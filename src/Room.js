@@ -159,4 +159,4 @@ async set(name, value) {
   }
 }
 
-module.exports = Room;
+module.exports = { Room, pool };
