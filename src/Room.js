@@ -10,42 +10,30 @@
  * @typedef {string|number} Value A value stored in a variable in a Room.
  */
 
+const { Pool } = require('pg');
+// Ensure you set DATABASE_URL in your Render environment variables
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
 class Room {
-  /**
-   * @param {RoomID} id
-   */
   constructor(id) {
-    /**
-     * Unique ID given to this room.
-     * @type {RoomID}
-     * @readonly
-     */
     this.id = id;
-    /**
-     * The variables that are within this room.
-     * @type {Map<string, Value>}
-     * @private
-     * @readonly
-     */
     this.variables = new Map();
-    /**
-     * Clients connected to this room.
-     * @type {Client[]}
-     * @private
-     */
     this.clients = [];
-    /**
-     * The time of the last client disconnect.
-     */
     this.lastDisconnectTime = -1;
-    /**
-     * Maximum number of variables that can be within this room.
-     */
     this.maxVariables = 128;
-    /**
-     * Maximum number of clients that can be connected to this room.
-     */
     this.maxClients = 128;
+    
+    // Automatically load data when a room is initialized
+    this.loadFromDatabase();
+  }
+
+  async loadFromDatabase() {
+    try {
+      const res = await pool.query('SELECT name, value FROM cloud_vars WHERE room_id = $1', [this.id]);
+      res.rows.forEach(row => this.variables.set(row.name, row.value));
+    } catch (err) {
+      console.error('Failed to load from DB:', err);
+    }
   }
 
   /**
@@ -117,11 +105,23 @@ class Room {
    * @param {Value} value The value of the variable
    * @throws Will throw if the variable does not exist.
    */
-  set(name, value) {
-    if (!this.has(name)) {
+async set(name, value) {
+    if (!this.variables.has(name)) {
       throw new Error('Variable does not exist');
     }
     this.variables.set(name, value);
+
+    // Save to SQL immediately
+    try {
+      await pool.query(
+        `INSERT INTO cloud_vars (room_id, name, value) 
+         VALUES ($1, $2, $3) 
+         ON CONFLICT (room_id, name) DO UPDATE SET value = $3`,
+        [this.id, name, value.toString()]
+      );
+    } catch (err) {
+      console.error('Database update failed:', err);
+    }
   }
 
   /**
