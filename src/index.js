@@ -10,16 +10,21 @@ const wss = require('./server');
 // We serve static files over HTTP
 const serve = serveStatic('public');
 const server = http.createServer(async function handler(req, res) {
-  if (req.url === '/api/health-check' && req.method === 'GET') {
+if (req.url === '/api/health-check' && req.method === 'GET') {
     try {
-      await pool.query('SELECT 1'); // Pings Supabase
+      // Use a raw SQL check that doesn't target your table
+      // This verifies the server can talk to the database at all
+      await pool.query('SELECT NOW()'); 
+      
       res.setHeader('Content-Type', 'application/json');
       res.writeHead(200);
-      res.end(JSON.stringify({ status: "healthy", database: "connected" }));
+      res.end(JSON.stringify({ status: "healthy" }));
       return;
     } catch (err) {
+      // LOG THE ERROR SO WE CAN SEE WHAT'S WRONG
+      console.error("Health check error:", err); 
       res.writeHead(500);
-      res.end(JSON.stringify({ status: "error", message: "Database connection failed" }));
+      res.end(JSON.stringify({ status: "error", message: err.message }));
       return;
     }
   }
