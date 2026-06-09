@@ -9,7 +9,7 @@ const wss = require('./server');
 
 // We serve static files over HTTP
 const serve = serveStatic('public');
-const server = http.createServer(function handler(req, res) {
+const server = http.createServer(async function handler(req, res) {
   if (req.url === '/api/health-check' && req.method === 'GET') {
     try {
       await pool.query('SELECT 1'); // Pings Supabase
