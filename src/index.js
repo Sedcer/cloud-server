@@ -6,6 +6,7 @@ const serveStatic = require('serve-static');
 const logger = require('./logger');
 const config = require('./config');
 const wss = require('./server');
+const Room = require('./Room');
 
 // We serve static files over HTTP
 const serve = serveStatic('public');
