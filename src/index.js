@@ -6,30 +6,10 @@ const serveStatic = require('serve-static');
 const logger = require('./logger');
 const config = require('./config');
 const wss = require('./server');
-const { pool } = require('./Room');
 
 // We serve static files over HTTP
 const serve = serveStatic('public');
-const server = http.createServer(async function handler(req, res) {
-if (req.url === '/api/health-check' && req.method === 'GET') {
-    try {
-      // Use a raw SQL check that doesn't target your table
-      // This verifies the server can talk to the database at all
-      await pool.query('SELECT NOW()'); 
-      
-      res.setHeader('Content-Type', 'application/json');
-      res.writeHead(200);
-      res.end(JSON.stringify({ status: "healthy" }));
-      return;
-    } catch (err) {
-      // LOG THE ERROR SO WE CAN SEE WHAT'S WRONG
-      console.error("Health check error:", err); 
-      res.writeHead(500);
-      res.end(JSON.stringify({ status: "error", message: err.message }));
-      return;
-    }
-  }
-  
+const server = http.createServer(function handler(req, res) {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
