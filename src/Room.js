@@ -9,6 +9,7 @@
 /**
  * @typedef {string|number} Value A value stored in a variable in a Room.
  */
+console.log(process.env.DATABASE_URL);
 
 const { Pool } = require('pg');
 
