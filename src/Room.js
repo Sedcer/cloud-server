@@ -15,14 +15,13 @@ console.log("PGHOST:", process.env.PGHOST);
 console.log("PGPORT:", process.env.PGPORT);
 console.log("PGUSER:", process.env.PGUSER);
 console.log("PGDATABASE:", process.env.PGDATABASE);
+console.log(new URL(process.env.DATABASE_URL).host);
 
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: new URL(process.env.DATABASE_URL).toString(),
+  ssl: { rejectUnauthorized: false }
 });
 
 class Room {
