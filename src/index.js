@@ -7,6 +7,9 @@ const logger = require('./logger');
 const config = require('./config');
 const wss = require('./server');
 
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 // We serve static files over HTTP
 const serve = serveStatic('public');
 const server = http.createServer(function handler(req, res) {
