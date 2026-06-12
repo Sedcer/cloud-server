@@ -1,3 +1,6 @@
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 const http = require('http');
 const fs = require('fs');
 const finalhandler = require('finalhandler');
@@ -6,9 +9,6 @@ const serveStatic = require('serve-static');
 const logger = require('./logger');
 const config = require('./config');
 const wss = require('./server');
-
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
 
 // We serve static files over HTTP
 const serve = serveStatic('public');
