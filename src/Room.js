@@ -14,8 +14,7 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: new URL(process.env.DATABASE_URL).toString(),
-  ssl: { rejectUnauthorized: false },
-  family: 4
+  ssl: { rejectUnauthorized: false }
 });
 
 class Room {
